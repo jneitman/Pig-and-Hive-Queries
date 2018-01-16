@@ -1,0 +1,17 @@
+DROP TABLE IF EXISTS master;
+CREATE EXTERNAL TABLE IF NOT EXISTS master(id STRING, byear INT, bmonth INT, bday INT, bcountry STRING, bstate STRING, bcity STRING, dyear INT, dmonth INT, dday INT, dcountry STRING, dstate STRING, dcity STRING, fname STRING, lname STRING, name STRING, weight INT, height INT, bats STRING, throws STRING, debut STRING, finalgame STRING, retro STRING, bbref STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/home/ubuntu/hive/master';
+
+
+DROP VIEW IF EXISTS two;
+CREATE VIEW two AS
+SELECT k.bmonth, k.bday
+FROM(
+SELECT f.bmonth, f.bday, rank() over (ORDER BY f.total DESC) AS myrank
+FROM(
+SELECT bmonth, bday, COUNT(id) AS total
+FROM master
+WHERE bmonth>0 AND bday>0
+GROUP BY bmonth, bday) f) k
+WHERE k.myrank <=3;
+
+SELECT * FROM two;

@@ -1,0 +1,34 @@
+DROP TABLE IF EXISTS fielding;
+CREATE EXTERNAL TABLE IF NOT EXISTS fielding(id STRING, yearid INT, teamid STRING, igid STRING, pos STRING, g INT, gs INT, innouts INT, po INT, a INT, e INT, dp INT, pb INT, wp INT, sb INT, cs INT, zr INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/home/ubuntu/hive/fielding';
+
+DROP TABLE IF EXISTS batting;
+CREATE EXTERNAL TABLE IF NOT EXISTS batting(id STRING, year INT, team STRING, league STRING, games INT, ab INT, runs INT, hits INT, doubles INT, triples INT, homeruns INT, rbi INT, sb INT, cs INT, walks INT, strikeouts INT, ibb INT, hbp INT, sh INT, sf INT, gidp INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/home/ubuntu/hive/batting';
+
+DROP VIEW IF EXISTS six;
+CREATE VIEW six AS
+SELECT id
+FROM(
+SELECT id, rank() over (ORDER BY p.crit DESC) AS myrank
+FROM(
+
+SELECT ff.id, ((allhits/allbats)-(allerrors/allgames)) AS crit
+FROM(
+
+SELECT id, allgames, allerrors
+FROM(
+SELECT id, SUM(g) AS allgames, SUM(e) AS allerrors
+FROM fielding
+WHERE yearid>=2005 AND yearid<=2009
+GROUP BY id) f
+WHERE f.allgames>=20 AND f.allerrors>=0)ff JOIN(
+
+SELECT id, allbats, allhits
+FROM(
+SELECT id, SUM(ab) AS allbats, SUM(hits) AS allhits
+FROM batting
+WHERE year>=2005 AND year<=2009
+GROUP BY id) b
+WHERE b.allbats>=40 AND b.allhits>=0) bb ON ff.id=bb.id) p) pp
+WHERE pp.myrank<=3;
+
+SELECT * FROM six;

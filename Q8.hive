@@ -1,0 +1,28 @@
+DROP TABLE IF EXISTS master;
+CREATE EXTERNAL TABLE IF NOT EXISTS master(id STRING, byear INT, bmonth INT, bday INT, bcountry STRING, bstate STRING, bcity STRING, dyear INT, dmonth INT, dday INT, dcountry STRING, dstate STRING, dcity STRING, fname STRING, lname STRING, name STRING, weight INT, height INT, bats STRING, throws STRING, debut STRING, finalgame STRING, retro STRING, bbref STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/home/ubuntu/hive/master';
+
+DROP TABLE IF EXISTS batting;
+CREATE EXTERNAL TABLE IF NOT EXISTS batting(id STRING, year INT, team STRING, league STRING, games INT, ab INT, runs INT, hits INT, doubles INT, triples INT, homeruns INT, rbi INT, sb INT, cs INT, walks INT, strikeouts INT, ibb INT, hbp INT, sh INT, sf INT, gidp INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/home/ubuntu/hive/batting';
+
+DROP VIEW IF EXISTS eight;
+CREATE VIEW eight AS
+SELECT bmonth, bstate
+FROM(
+SELECT bmonth, bstate, rank() over (ORDER BY allhits/allab ASC) AS myrank
+FROM(
+SELECT bmonth, bstate, SUM(playerhits) AS allhits, SUM(playerab) AS allab, COUNT(id) AS allplayers
+FROM(
+SELECT b.id, b.playerhits, b.playerab, m.bmonth, m.bstate
+FROM(
+SELECT id, SUM(hits) AS playerhits, SUM(ab) AS playerab
+FROM batting
+GROUP BY id) b JOIN(
+
+SELECT id, bmonth, bstate
+FROM master 
+GROUP BY id, bmonth, bstate) m ON b.id=m.id) j
+GROUP BY bmonth, bstate) t
+WHERE t.allplayers>=5 AND bmonth>0 AND bstate!='') k
+WHERE k.myrank=1;
+
+SELECT * FROM eight;

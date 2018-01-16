@@ -1,0 +1,19 @@
+DROP TABLE IF EXISTS fielding;
+CREATE EXTERNAL TABLE IF NOT EXISTS fielding(id STRING, yearid INT, teamid STRING, igid STRING, pos STRING, g INT, gs INT, innouts INT, po INT, a INT, e INT, dp INT, pb INT, wp INT, sb INT, cs INT, zr INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/home/ubuntu/hive/fielding';
+
+DROP TABLE IF EXISTS master;
+CREATE EXTERNAL TABLE IF NOT EXISTS master(id STRING, byear INT, bmonth INT, bday INT, bcountry STRING, bstate STRING, bcity STRING, dyear INT, dmonth INT, dday INT, dcountry STRING, dstate STRING, dcity STRING, fname STRING, lname STRING, name STRING, weight INT, height INT, bats STRING, throws STRING, debut STRING, finalgame STRING, retro STRING, bbref STRING) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/home/ubuntu/hive/master';
+
+DROP VIEW IF EXISTS five;
+CREATE VIEW five AS
+SELECT k.lname, k.fname
+FROM(
+SELECT lname, fname, rank() over (ORDER BY b.total DESC) AS myrank
+FROM master m JOIN(
+
+SELECT id, SUM(e) AS total
+FROM fielding
+GROUP BY id) b ON m.id=b.id) k
+WHERE k.myrank=1;
+
+SELECT * FROM five;

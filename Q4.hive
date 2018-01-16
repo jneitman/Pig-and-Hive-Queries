@@ -1,0 +1,16 @@
+DROP TABLE IF EXISTS fielding;
+CREATE EXTERNAL TABLE IF NOT EXISTS fielding(id STRING, yearid INT, teamid STRING, igid STRING, pos STRING, g INT, gs INT, innouts INT, po INT, a INT, e INT, dp INT, pb INT, wp INT, sb INT, cs INT, zr INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' LOCATION '/home/ubuntu/hive/fielding';
+
+DROP VIEW IF EXISTS four;
+CREATE VIEW four AS
+SELECT t.teamid
+FROM(
+SELECT teamid, rank() over (ORDER BY tab.total DESC) AS myrank
+FROM(
+SELECT teamid, SUM(e) as total
+FROM fielding
+WHERE yearid=2001
+GROUP BY teamid) tab) t
+WHERE t.myrank=1;
+
+SELECT * FROM four;
