@@ -1,5 +1,5 @@
 
-#The goal for mapper1 and reducer1 is to figure out x number of words in a txt file have y number of vowels.
+#The goal for mapper1 and reducer1 is to figure out x number of words containing y number of vowels.
 
 import sys
 
