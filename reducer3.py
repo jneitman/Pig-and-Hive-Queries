@@ -1,5 +1,5 @@
 
-#mapper3 and reducer3 creates recommendations based of given information of a set of items.
+#mapper3 and reducer3 creates recommendations based off data on a set of items.
 
 import sys
 
