@@ -1,2 +1,2 @@
-# MapReduce Examples
-~mappers and reducers for simple aggregation (mapper1:2, reducer1:2) and a recommendation system (mapper3, reducer3).
+# Sample Pig and Hive Queries
+The presented queries were submitted in part of an assignment for the class Big Data: High-Performance Computing offered through the M.S. Data Science program at the University of Wisconsin - Eau Claire.
